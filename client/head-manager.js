@@ -1,17 +1,23 @@
-import HTMLDOMPropertyConfig from 'react/lib/HTMLDOMPropertyConfig'
 
 const DEFAULT_TITLE = ''
 
+const DOMAttributeNames = {
+  acceptCharset: 'accept-charset',
+  className: 'class',
+  htmlFor: 'for',
+  httpEquiv: 'http-equiv'
+}
+
 export default class HeadManager {
-  constuctor () {
-    this.requestId = null
+  constructor () {
+    this.updatePromise = null
   }
 
   updateHead (head) {
-    // perform batch update
-    window.cancelAnimationFrame(this.requestId)
-    this.requestId = window.requestAnimationFrame(() => {
-      this.requestId = null
+    const promise = this.updatePromise = Promise.resolve().then(() => {
+      if (promise !== this.updatePromise) return
+
+      this.updatePromise = null
       this.doUpdateHead(head)
     })
   }
@@ -68,7 +74,7 @@ function reactElementToDOM ({ type, props }) {
     if (!props.hasOwnProperty(p)) continue
     if (p === 'children' || p === 'dangerouslySetInnerHTML') continue
 
-    const attr = HTMLDOMPropertyConfig.DOMAttributeNames[p] || p.toLowerCase()
+    const attr = DOMAttributeNames[p] || p.toLowerCase()
     el.setAttribute(attr, props[p])
   }
 

@@ -1,22 +1,8 @@
-import { createElement } from 'react'
-import { render } from 'react-dom'
-import HeadManager from './head-manager'
-import { rehydrate } from '../lib/css'
-import Router from '../lib/router'
-import App from '../lib/app'
-import evalScript from '../lib/eval-script'
+import initNext, * as next from './'
 
-const {
-  __NEXT_DATA__: { component, props, ids, err }
-} = window
+window.next = next
 
-const Component = evalScript(component).default
-
-export const router = new Router(window.location.href, { Component, ctx: { err } })
-
-const headManager = new HeadManager()
-const container = document.getElementById('__next')
-const appProps = { Component, props, router, headManager }
-
-rehydrate(ids)
-render(createElement(App, appProps), container)
+initNext()
+  .catch((err) => {
+    console.error(`${err.message}\n${err.stack}`)
+  })

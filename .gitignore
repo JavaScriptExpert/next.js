@@ -1,12 +1,18 @@
 # build output
 dist
+.next
 
 # dependencies
-yarn.lock
 node_modules
+package-lock.json
 
 # logs
-npm-debug.log
+*.log
 
-# other
-.next
+# coverage
+.nyc_output
+coverage
+
+# test output
+test/**/out
+.DS_Store

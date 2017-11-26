@@ -1,33 +1,44 @@
 import { join } from 'path'
-import { readFile } from 'mz/fs'
+import { existsSync } from 'fs'
 
 const cache = new Map()
 
-const defaultConfig = { cdn: true }
+const defaultConfig = {
+  webpack: null,
+  webpackDevMiddleware: null,
+  poweredByHeader: true,
+  distDir: '.next',
+  assetPrefix: '',
+  configOrigin: 'default',
+  useFileSystemPublicRoutes: true
+}
 
-export default function getConfig (dir) {
+export default function getConfig (dir, customConfig) {
   if (!cache.has(dir)) {
-    cache.set(dir, loadConfig(dir))
+    cache.set(dir, loadConfig(dir, customConfig))
   }
   return cache.get(dir)
 }
 
-async function loadConfig (dir) {
-  const path = join(dir, 'package.json')
+function loadConfig (dir, customConfig) {
+  if (customConfig && typeof customConfig === 'object') {
+    customConfig.configOrigin = 'server'
+    return withDefaults(customConfig)
+  }
+  const path = join(dir, 'next.config.js')
 
-  let data
-  try {
-    data = await readFile(path, 'utf8')
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      data = '{}'
-    } else {
-      throw err
-    }
+  let userConfig = {}
+
+  const userHasConfig = existsSync(path)
+  if (userHasConfig) {
+    const userConfigModule = require(path)
+    userConfig = userConfigModule.default || userConfigModule
+    userConfig.configOrigin = 'next.config.js'
   }
 
-  // no try-cache, it must be a valid json
-  const config = JSON.parse(data).next || {}
+  return withDefaults(userConfig)
+}
 
+function withDefaults (config) {
   return Object.assign({}, defaultConfig, config)
 }

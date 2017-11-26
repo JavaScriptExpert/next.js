@@ -1,6 +1,10 @@
-import React from 'react'
 export default () => (
   <div>
-    <p>Hello world!</p>
+    <style jsx>{`
+      p {
+        color: red;
+      }
+    `}</style>
+    <p>Hello World!</p>
   </div>
 )
